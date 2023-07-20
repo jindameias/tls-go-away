@@ -28,8 +28,9 @@ headers = {
     'sec-ch-ua': '"Not.A/Brand";v="8", "Chromium";v="114", "Google Chrome";v="114"',
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"',
-    'Transpond-Url': 'https://tls.browserleaks.com/json',
-    # 'Transpond-Url': 'http://httpbin.org/ip',
+    # 'Transpond-Url': 'https://tls.browserleaks.com/json',
+    'Transpond-Url': 'http://httpbin.org/ip',
+    # 'Transpond-Url': 'http://httpbin.org/get',
 
 }
 

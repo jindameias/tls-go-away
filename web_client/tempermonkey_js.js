@@ -30,6 +30,10 @@
                 console.log(xhr.responseText);
                 websocket.send(xhr.responseText)
             }
+            else if (xhr.readyState === 4 && xhr.status > 200) {
+                console.log(xhr.responseText);
+                websocket.send('request error, the status is '+xhr.status)
+            }
         };
     }
 
