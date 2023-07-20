@@ -1,4 +1,6 @@
 import requests
+from pprint import pprint
+import json
 
 
 cookies = {
@@ -25,7 +27,8 @@ headers = {
     'sec-ch-ua': '"Not.A/Brand";v="8", "Chromium";v="114", "Google Chrome";v="114"',
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"',
-    'Transpond-Url': 'https://tls.browserleaks.com/json',
+    # 'Transpond-Url': 'https://tls.browserleaks.com/json',
+    'Transpond-Url': 'http://httpbin.org/ip',
 }
 
 params = {
@@ -36,8 +39,10 @@ params = {
 data = {
     'sign': '1234567890'
 }
-txt = requests.post('http://127.0.0.1:10000/transpond', params=params, json=data, headers=headers, cookies=cookies).text
-print(txt)
+reponse = requests.post('http://127.0.0.1:10000/transpond', params=params, json=data, headers=headers, cookies=cookies)
+print(reponse.text)
+if not ('browser websocket not start' in reponse.text):
+    pprint(json.loads(reponse.json()['message']))
 
 
 

@@ -38,7 +38,7 @@ websockets连接异常<br>
 ![image](IMG/q.png)<br>
 ![image](IMG/w.png)
 
-##### 以上两个案例的网址来自某还不想公布的大佬，暂无法提供测试网址
+##### 以上两个案例的网址来自某还不想公布的大佬, 暂无法提供测试网址, 想仅测试ip可使用`http://httpbin.org/ip`
 
 
 3.查看tls, 以老chrome和新chrome对`https://tls.browserleaks.com/json`测试。<br>

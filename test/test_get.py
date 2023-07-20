@@ -29,6 +29,7 @@ headers = {
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"',
     'Transpond-Url': 'https://tls.browserleaks.com/json',
+    # 'Transpond-Url': 'http://httpbin.org/ip',
 
 }
 
@@ -37,8 +38,10 @@ params = {
     'name': 'xx',
     'other': 'other'
 }
-txt = requests.get('http://127.0.0.1:10000/transpond', params=params, headers=headers, cookies=cookies).json()
-pprint(json.loads(txt['message']))
+reponse = requests.get('http://127.0.0.1:10000/transpond', params=params, headers=headers, cookies=cookies)
+print(reponse.text)
+if not ('browser websocket not start' in reponse.text):
+    pprint(json.loads(reponse.json()['message']))
 
 
 
