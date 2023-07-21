@@ -2,18 +2,17 @@ import time
 import traceback
 from loguru import logger
 from flask import request, Flask, send_file
-from concurrent.futures import TimeoutError
 import requests
 import websockets
 import asyncio
 import json
 import threading
+import uuid
 
 
 app = Flask(__name__)
-user_send_que = asyncio.Queue()
-webclient_recv_que = asyncio.Queue()
 websocket_chrome_client = set()
+socket_map = {}
 repeat_time = 0
 proxy_lock = threading.Lock()
 
@@ -48,9 +47,9 @@ def transpond():
             info['data'] = request.json
 
         async def client_run():
-            async with websockets.connect("ws://127.0.0.1:9999/user") as websocket:
-                await websocket.send(json.dumps(info, separators=(',', ':')))
-                return await websocket.recv()
+            async with websockets.connect("ws://127.0.0.1:9999/user") as ws:
+                await ws.send(json.dumps(info, separators=(',', ':')))
+                return await ws.recv()
 
         task = asyncio.ensure_future(client_run())
         asyncio.get_event_loop().run_until_complete(asyncio.wait([task]))
@@ -62,48 +61,42 @@ def transpond():
         return "启动接口失败."
 
 
-
 async def handle(websocket, path):
     async for message in websocket:
-        logger.debug(path, message)
-        # logger.debug(websocket)
+        # logger.debug(path, message)
+        logger.debug(f"recv {websocket} , {path}")
         if path == '/chrome_client':
-            logger.debug(f'there is an onOpen message: {message}, path: {path}')
-            websocket_chrome_client.add(websocket)
-            while 1:
+            logger.debug(f'there is an message: {message}, path: {path}')
+            if message.endswith('hello1'):
+                websocket_chrome_client.add(websocket)      # first on open send
+            else:
+                uuid4, info = message.split('|||', 1)
+                client_socket = socket_map.pop(uuid4)
+                await client_socket.send(info)
+
+        elif path == '/user':
+            for chrome_client in websocket_chrome_client:       # todo for in remove will cause an error
+                                                                # todo websocket_chrome_client should be a class, its init function accept href, its inner maintains many chrome clients
                 try:
-                    await websocket.send(await user_send_que.get())
-                    webclient_msg = await websocket.recv()
-                    await webclient_recv_que.put(webclient_msg)
-                    if webclient_msg == 'websocket_close':
-                        logger.debug(websocket.id + ' close')
-                        websocket_chrome_client.remove(websocket)
-                        break
-                except TimeoutError:
-                    # TODO
-                    logger.debug('timeout')
+                    uuid4 = str(uuid.uuid4())
+                    await chrome_client.send(f'{uuid4}|||'+message)
+                    socket_map[uuid4] = websocket
+                    break
                 except websockets.ConnectionClosed:
                     logger.debug("websocket_users old:" + str(websocket_chrome_client))
-                    await webclient_recv_que.put('websocket something error, most possible is closed')
-                    websocket_chrome_client.remove(websocket)
+                    websocket_chrome_client.remove(chrome_client)
                     logger.debug("websocket_users new:" + str(websocket_chrome_client))
                     break
                 except websockets.InvalidState:
                     traceback.print_exc()
-                    await webclient_recv_que.put('websocket something error, most possible is InvalidState')
                     logger.debug("InvalidState...")  # 无效状态
                     break
                 except Exception:
-                    traceback.print_exc()
+                    logger.debug('cannot call recv while another coroutine is already waiting for the next message')
+                    # traceback.print_exc()
+            else:
+                await websocket.send('browser websocket not start.')
 
-        elif path == '/user':
-            if len(websocket_chrome_client) > 0:
-                # logger.debug('que.empty():', user_send_que.empty())
-                # logger.debug('que.full():', user_send_que.full())
-                await user_send_que.put(message)
-                msg = await webclient_recv_que.get()
-                return await websocket.send(msg)
-            await websocket.send('browser websocket not start.')
 
 
 

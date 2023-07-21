@@ -5,7 +5,7 @@
 
 ````
 1. pip install websockets loguru requests flask
-2. python proxy_server.py
+2. python proxy_server_concurrent.py
 3. 安装SwitchyOmega和tempermonkey
 4. 配置完成后进行转发
 ````

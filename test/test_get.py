@@ -29,8 +29,8 @@ headers = {
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"',
     # 'Transpond-Url': 'https://tls.browserleaks.com/json',
-    'Transpond-Url': 'http://httpbin.org/ip',
-    # 'Transpond-Url': 'http://httpbin.org/get',
+    # 'Transpond-Url': 'http://httpbin.org/ip',
+    'Transpond-Url': 'http://httpbin.org/get',
 
 }
 
